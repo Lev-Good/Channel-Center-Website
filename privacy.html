@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>מדיניות פרטיות - מרכז הערוצים</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .privacy-content {
+      padding-top: 140px;
+      padding-bottom: 80px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .privacy-card {
+      padding: 40px;
+      line-height: 1.8;
+    }
+    .privacy-card h1 {
+      font-size: 32px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border-glass);
+      padding-bottom: 12px;
+    }
+    .privacy-card h2 {
+      font-size: 22px;
+      margin-top: 28px;
+      margin-bottom: 12px;
+      color: var(--accent);
+    }
+    .privacy-card p, .privacy-card ul {
+      margin-bottom: 16px;
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+    .privacy-card ul {
+      padding-right: 20px;
+    }
+    .privacy-card li {
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Ambient background glow effect -->
+  <div class="glow-container">
+    <div class="glow-ball ball-1"></div>
+    <div class="glow-ball ball-2"></div>
+  </div>
+
+  <header class="main-header">
+    <div class="header-container container">
+      <div class="logo-area">
+        <a href="index.html" style="display:flex; align-items:center; gap:12px; text-decoration:none;">
+          <img src="logo.png" alt="לוגו מרכז הערוצים" class="logo-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3661/3661348.png'">
+          <span class="logo-text">מרכז הערוצים</span>
+        </a>
+      </div>
+      <nav class="main-nav">
+        <a href="index.html">חזרה לבית</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="privacy-content container">
+    <div class="glass-card privacy-card">
+      <h1>מדיניות פרטיות</h1>
+      <p>עדכון אחרון: יוני 2026</p>
+      
+      <p>
+        מפתחי תוסף <strong>"מרכז הערוצים" (Channel Center)</strong> מכבדים את פרטיותך ומחויבים להגן עליה. מדיניות פרטיות זו מתארת איזה מידע נאסף, מנוהל או מעובד על ידי התוסף.
+      </p>
+
+      <h2>1. איסוף מידע ושימוש בו</h2>
+      <p>התוסף פועל במודל של אפס איסוף נתונים (Zero Data Collection):</p>
+      <ul>
+        <li><strong>אין איסוף מידע אישי:</strong> התוסף אינו אוסף, אינו שומר ואינו משתף מידע אישי מזהה של המשתמש (כגון שם, כתובת אימייל, פרטי קשר או כתובת IP).</li>
+        <li><strong>אין מעקב (No Tracking):</strong> התוסף אינו עוקב אחר הרגלי הגלישה שלך, היסטוריית האתרים שבהם ביקרת או הפעילות שלך ברשת.</li>
+      </ul>
+
+      <h2>2. אחסון נתונים מקומי (Local Storage)</h2>
+      <p>
+        כל נתוני התוסף, לרבות הגדרות תצוגה מועדפות (גודל גופן, ערכת עיצוב), רשימת הערוצים הפעילים שבחרת להציג, ושמירת הודעות מטמון (Cache) לצורך קריאה לא מקוונת, נשמרים אך ורק באופן מקומי על גבי מכשירך האישי באמצעות ה-API המאובטח של הדפדפן (<code>chrome.storage.local</code>). מידע זה אינו מועבר לאף שרת חיצוני ונמחק אוטומטית בעת הסרת התוסף מהדפדפן.
+      </p>
+
+      <h2>3. הרשאות התוסף והצדקתן</h2>
+      <p>התוסף עושה שימוש בהרשאות דפדפן הבאות למטרות פונקציונליות בלבד:</p>
+      <ul>
+        <li><strong>Storage:</strong> לשמירת ההגדרות והודעות המטמון באופן מקומי במכשיר.</li>
+        <li><strong>Notifications & Alarms:</strong> להצגת התראות שולחן עבודה על הודעות חדשות בערוצים הנבחרים.</li>
+        <li><strong>SidePanel:</strong> לאפשרות הצגת פיד ההודעות בסרגל הצדדי של הדפדפן.</li>
+        <li><strong>Scripting & Tabs:</strong> לצורך הצגת בועות הודעה קופצות במעבר עכבר בסרגל ג'ימייל המקומי בלבד.</li>
+        <li><strong>Identity:</strong> לצורך אימות מאובטח מול חשבון גוגל לקריאת הגדרות אישיות מקובץ Google Sheets.</li>
+      </ul>
+
+      <h2>4. מודעות ופרסומות</h2>
+      <p>
+        התוסף מציג מודעות פרסום ממומנות ותוכן קידומי קצר (כגון מודעת פתיחה זמנית של 5 שניות ובאנר טקסט תחתון). מודעות אלו הן סטטיות ואינן עושות שימוש בקובצי מעקב (Cookies), אינן מנטרות את המשתמש ואינן מבוססות על פרופיל התנהגותי כלשהו.
+      </p>
+
+      <h2>5. יצירת קשר</h2>
+      <p>
+        לכל שאלה או הבהרה בנושא פרטיות או תפעול התוסף, ניתן לפנות אלינו בדואר אלקנרוני: <a href="mailto:mytovmail@gmail.com" style="color:var(--accent); text-decoration:none;">mytovmail@gmail.com</a>
+      </p>
+    </div>
+  </main>
+
+  <footer class="main-footer">
+    <div class="footer-bottom container">
+      <p>© כל הזכויות שמורות ל-'לב טוב', 2026. השימוש בתוכן ובפרסומים באחריות המשתמש בלבד.</p>
+    </div>
+  </footer>
+</body>
+</html>
