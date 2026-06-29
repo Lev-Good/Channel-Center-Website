@@ -1,6 +1,25 @@
 // script.js - Landing Page Interactions
 
 document.addEventListener('DOMContentLoaded', () => {
+  // Light/Dark Theme Toggle
+  const themeToggleBtn = document.getElementById('theme-toggle');
+  const savedTheme = localStorage.getItem('theme') || 'dark';
+  if (savedTheme === 'light') {
+    document.documentElement.classList.add('light-mode');
+    if (themeToggleBtn) themeToggleBtn.textContent = '☀️';
+  } else {
+    document.documentElement.classList.remove('light-mode');
+    if (themeToggleBtn) themeToggleBtn.textContent = '🌙';
+  }
+
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      const isLight = document.documentElement.classList.toggle('light-mode');
+      localStorage.setItem('theme', isLight ? 'light' : 'dark');
+      themeToggleBtn.textContent = isLight ? '☀️' : '🌙';
+    });
+  }
+
   // Tab Switching in Hero Extension Mockup
   const mockupTabs = document.querySelectorAll('.mockup-tab');
   const feedChTitle = document.querySelector('.feed-ch-title');

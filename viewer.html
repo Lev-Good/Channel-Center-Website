@@ -26,9 +26,16 @@
           <h3>מרכז הערוצים</h3>
         </a>
       </div>
-      <div class="sidebar-channels-list" id="sidebar-channels">
-        <!-- Channels will be populated here -->
-        <div class="sidebar-loading">טוען ערוצים...</div>
+      <div class="sidebar-channels-list" style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
+        <div class="sidebar-item active" id="home-item" style="cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 10px; margin-bottom: 4px; transition: var(--transition);">
+          <span class="sidebar-icon" style="font-size: 18px;">🏠</span>
+          <span class="sidebar-name" style="font-size: 13px; font-weight: 500;">דף הבית - סרטונים</span>
+        </div>
+        <div class="channels-divider" style="height: 1px; background: var(--border-glass); margin: 8px 12px; flex-shrink: 0;"></div>
+        <div class="sidebar-channels-list" id="sidebar-channels" style="flex: 1; overflow-y: auto;">
+          <!-- Channels will be populated here -->
+          <div class="sidebar-loading">טוען ערוצים...</div>
+        </div>
       </div>
     </aside>
 
@@ -44,7 +51,8 @@
             <span id="active-subcount"></span>
           </div>
         </div>
-        <div class="header-actions">
+        <div class="header-actions" style="display: flex; align-items: center; gap: 8px;">
+          <button id="theme-toggle" class="theme-toggle-btn" title="שינוי מצב עיצוב" style="background: none; border: none; font-size: 20px; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; color: var(--text);">🌙</button>
           <a href="index.html" class="btn btn-secondary btn-sm">דף הבית</a>
         </div>
       </header>

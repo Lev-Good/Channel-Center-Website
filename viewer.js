@@ -132,10 +132,109 @@ const pinnedMessagesContainer = document.getElementById('pinned-messages');
 const menuToggle = document.getElementById('menu-toggle');
 const sidebar = document.querySelector('.viewer-sidebar');
 
+// Light/Dark Theme Toggle
+function initTheme() {
+  const themeToggleBtn = document.getElementById('theme-toggle');
+  const savedTheme = localStorage.getItem('theme') || 'dark';
+  if (savedTheme === 'light') {
+    document.documentElement.classList.add('light-mode');
+    if (themeToggleBtn) themeToggleBtn.textContent = '☀️';
+  } else {
+    document.documentElement.classList.remove('light-mode');
+    if (themeToggleBtn) themeToggleBtn.textContent = '🌙';
+  }
+
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      const isLight = document.documentElement.classList.toggle('light-mode');
+      localStorage.setItem('theme', isLight ? 'light' : 'dark');
+      themeToggleBtn.textContent = isLight ? '☀️' : '🌙';
+    });
+  }
+}
+
+async function selectHome() {
+  activeChannel = null;
+  currentOffset = 0;
+  activeCategory = "";
+  hasMore = false;
+  isLoading = false;
+
+  // Toggle active class in sidebar
+  const homeItem = document.getElementById('home-item');
+  if (homeItem) homeItem.classList.add('active');
+  document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('active'));
+
+  // Close sidebar on mobile
+  sidebar.classList.remove('show');
+
+  // Update Header
+  activeIcon.textContent = "🏠";
+  activeIcon.style.background = "var(--accent)";
+  activeName.textContent = "דף הבית - סרטונים";
+  activeSubcount.textContent = "הסרטונים האחרונים מכל הערוצים החרדיים";
+
+  // Clear feed and show loader
+  messagesFeed.innerHTML = '<div class="loading-spinner">טוען את הסרטונים האחרונים מכל הערוצים...</div>';
+  categoryTabs.style.display = 'none';
+  pinnedBar.style.display = 'none';
+
+  // Load videos
+  await loadHomeVideos();
+}
+
+async function loadHomeVideos() {
+  isLoading = true;
+  
+  const fetchPromises = CHANNELS.map(async (ch) => {
+    try {
+      const url = `${ch.url.replace(/\/$/, '')}/api/messages?limit=25&offset=0`;
+      const data = await fetchJson(url);
+      const rawMsgs = Array.isArray(data) ? data : (data?.messages || []);
+      if (rawMsgs.length > 0) {
+        const parsed = parseRawMessages(rawMsgs, ch);
+        return parsed.map(msg => ({ ...msg, channelId: ch.id }));
+      }
+    } catch (e) {
+      console.warn(`Failed fetching videos for home from ${ch.name}:`, e.message);
+    }
+    return [];
+  });
+
+  const results = await Promise.all(fetchPromises);
+  const allVideoMsgs = results.flat().filter(msg => msg.videos && msg.videos.length > 0);
+
+  // Sort by time descending (newest first)
+  allVideoMsgs.sort((a, b) => new Date(b.time) - new Date(a.time));
+
+  messagesFeed.innerHTML = '';
+
+  if (allVideoMsgs.length === 0) {
+    messagesFeed.innerHTML = '<div class="feed-placeholder"><h3>לא נמצאו סרטונים בערוצים כעת</h3></div>';
+    isLoading = false;
+    return;
+  }
+
+  allVideoMsgs.forEach(msg => {
+    const card = renderMessageCard(msg);
+    messagesFeed.appendChild(card);
+  });
+
+  isLoading = false;
+}
+
 // Init
 document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
   renderChannelsList();
   setupEventListeners();
+
+  const homeItem = document.getElementById('home-item');
+  if (homeItem) {
+    homeItem.addEventListener('click', () => selectHome());
+  }
+
+  selectHome();
 });
 
 // Render sidebar list
@@ -185,6 +284,9 @@ async function selectChannel(channel) {
   isLoading = false;
 
   // Toggle active class in sidebar
+  const homeItem = document.getElementById('home-item');
+  if (homeItem) homeItem.classList.remove('active');
+
   document.querySelectorAll('.channel-item').forEach(el => {
     el.classList.remove('active');
     if (el.getAttribute('data-id') === channel.id) {
@@ -289,7 +391,7 @@ async function fetchFromExtension(url) {
 // Fetch helper with CORS Proxy fallbacks
 async function fetchJson(url) {
   // If extension is installed, fetch through the extension context to bypass CORS and proxy completely!
-  if (window.__channelCenterExtensionInstalled) {
+  if (document.documentElement.getAttribute('data-channel-center-extension-installed') === 'true') {
     try {
       console.log("Extension detected, fetching via bridge:", url);
       const res = await fetchFromExtension(url);
@@ -342,6 +444,7 @@ async function fetchJson(url) {
 }
 
 async function loadMessages(isInit = false) {
+  if (!activeChannel) return;
   if (isLoading) return;
   isLoading = true;
 
@@ -476,8 +579,12 @@ function renderMessageCard(msg) {
   card.setAttribute('data-id', msg.id);
 
   // Author and Avatar
-  const avatar = activeChannel.icon;
+  const ch = activeChannel || CHANNELS.find(c => c.id === msg.channelId) || { name: 'מרכז הערוצים', icon: 'logo.png' };
+  const avatar = ch.icon;
   const timeFormatted = formatTime(msg.time);
+  const channelBadge = (!activeChannel)
+    ? `<span class="channel-badge" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; margin-right: 8px;">${ch.name}</span>`
+    : '';
 
   // Parse Text Markdown
   let processedText = msg.text
@@ -539,6 +646,7 @@ function renderMessageCard(msg) {
       <div class="msg-author-info">
         <img src="${avatar}" class="msg-author-avatar" alt="avatar">
         <span class="msg-author">${msg.author}</span>
+        ${channelBadge}
       </div>
       <span class="msg-time">${timeFormatted}</span>
     </div>

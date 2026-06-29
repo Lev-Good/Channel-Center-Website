@@ -665,3 +665,116 @@ h1, h2, h3, h4 {
     display: none;
   }
 }
+
+/* ☀️ Light Mode Styles & Variables */
+:root.light-mode {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #f1f5f9;
+  --bg-glass: rgba(255, 255, 255, 0.4);
+  --border-glass: rgba(15, 23, 42, 0.08);
+  --text: #0f172a;
+  --text-muted: #475569;
+  --accent: #2563eb;
+  --accent-glow: rgba(37, 99, 235, 0.2);
+  --accent-purple: #7c3aed;
+}
+
+:root.light-mode .glow-ball {
+  opacity: 0.08 !important;
+}
+
+:root.light-mode .glass-card {
+  background: rgba(255, 255, 255, 0.8) !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.05) !important;
+}
+
+:root.light-mode .logo-text, 
+:root.light-mode h1, 
+:root.light-mode h2, 
+:root.light-mode h3, 
+:root.light-mode h4,
+:root.light-mode .step-card h4 {
+  color: #0f172a !important;
+}
+
+:root.light-mode .hero-subtitle,
+:root.light-mode .step-card p,
+:root.light-mode .feature-card p,
+:root.light-mode .about-section p,
+:root.light-mode .footer-about p {
+  color: #334155 !important;
+}
+
+:root.light-mode .btn-secondary {
+  background: rgba(15, 23, 42, 0.04) !important;
+  border-color: rgba(15, 23, 42, 0.1) !important;
+  color: #334155 !important;
+}
+
+:root.light-mode .btn-secondary:hover {
+  background: rgba(15, 23, 42, 0.08) !important;
+}
+
+:root.light-mode .sidebar-logo h3 {
+  color: #0f172a !important;
+}
+
+:root.light-mode .active-channel-meta h2 {
+  color: #0f172a !important;
+}
+
+:root.light-mode .viewer-tab {
+  color: #475569 !important;
+  background: rgba(15, 23, 42, 0.04) !important;
+}
+
+:root.light-mode .viewer-tab.active {
+  color: #ffffff !important;
+  background: var(--accent) !important;
+}
+
+:root.light-mode .msg-card {
+  background: rgba(255, 255, 255, 0.85) !important;
+  border-color: rgba(15, 23, 42, 0.06) !important;
+  color: #1e293b !important;
+}
+
+:root.light-mode .msg-text {
+  color: #1e293b !important;
+}
+
+:root.light-mode .msg-author {
+  color: #475569 !important;
+}
+
+:root.light-mode .sidebar-item {
+  color: #334155 !important;
+}
+
+:root.light-mode .sidebar-item:hover {
+  background: rgba(15, 23, 42, 0.04) !important;
+}
+
+:root.light-mode .sidebar-item.active {
+  background: rgba(37, 99, 235, 0.1) !important;
+  color: #2563eb !important;
+}
+
+:root.light-mode .ticker-track {
+  background: rgba(15, 23, 42, 0.03) !important;
+  color: #334155 !important;
+}
+
+:root.light-mode .viewer-pinned-bar {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+}
+
+:root.light-mode .pinned-label {
+  color: var(--accent) !important;
+}
+
+:root.light-mode .theme-toggle-btn {
+  color: #0f172a !important;
+}
