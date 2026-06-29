@@ -258,18 +258,43 @@ function switchCategory(cat, tabEl) {
 
 // Fetch helper with CORS Proxy fallbacks
 async function fetchJson(url) {
+  // 1. Direct fetch
   try {
     const res = await fetch(`${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}`);
-    if (res.ok) return await res.json();
+    if (res.ok) {
+      const data = await res.json();
+      if (data) return data;
+    }
   } catch (e) {
-    console.warn("Direct fetch failed for URL:", url);
+    console.warn("Direct fetch failed for URL:", url, e.message);
   }
 
-  // CORS Proxy fallback
-  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-  const res = await fetch(proxyUrl);
-  if (res.ok) return await res.json();
-  throw new Error("Fetch failed");
+  // Define fallback proxies
+  const proxyChain = [
+    { name: 'CorsProxy.io', getUrl: (u) => `https://corsproxy.io/?url=${encodeURIComponent(u)}` },
+    { name: 'CodeTabs', getUrl: (u) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}` },
+    { name: 'ThingProxy', getUrl: (u) => `https://thingproxy.freeboard.io/fetch/${u}` },
+    { name: 'AllOrigins', getUrl: (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}` }
+  ];
+
+  for (const proxy of proxyChain) {
+    try {
+      console.log(`Trying CORS proxy: ${proxy.name} for URL: ${url}`);
+      const proxyUrl = proxy.getUrl(url);
+      const res = await fetch(proxyUrl);
+      if (res.ok) {
+        const data = await res.json();
+        if (data) {
+          console.log(`Successfully fetched from ${proxy.name}`);
+          return data;
+        }
+      }
+    } catch (e) {
+      console.warn(`Proxy ${proxy.name} failed:`, e.message);
+    }
+  }
+
+  throw new Error("All fetch methods and CORS proxies failed.");
 }
 
 async function loadMessages(isInit = false) {
