@@ -256,8 +256,52 @@ function switchCategory(cat, tabEl) {
   loadMessages(true);
 }
 
+let requestCounter = 0;
+const pendingRequests = new Map();
+
+// Listen for response from extension bridge
+document.addEventListener('FetchChannelDataResponse', (e) => {
+  const { requestId, response } = e.detail;
+  const resolve = pendingRequests.get(requestId);
+  if (resolve) {
+    pendingRequests.delete(requestId);
+    resolve(response);
+  }
+});
+
+async function fetchFromExtension(url) {
+  return new Promise((resolve) => {
+    const requestId = ++requestCounter;
+    pendingRequests.set(requestId, resolve);
+    document.dispatchEvent(new CustomEvent('FetchChannelData', {
+      detail: { url, requestId }
+    }));
+    // Timeout fallback
+    setTimeout(() => {
+      if (pendingRequests.has(requestId)) {
+        pendingRequests.delete(requestId);
+        resolve(null);
+      }
+    }, 3000);
+  });
+}
+
 // Fetch helper with CORS Proxy fallbacks
 async function fetchJson(url) {
+  // If extension is installed, fetch through the extension context to bypass CORS and proxy completely!
+  if (window.__channelCenterExtensionInstalled) {
+    try {
+      console.log("Extension detected, fetching via bridge:", url);
+      const res = await fetchFromExtension(url);
+      if (res && res.success) {
+        return res.data;
+      }
+      console.warn("Extension bridge fetch failed, falling back to proxy...", res ? res.error : '');
+    } catch (e) {
+      console.warn("Extension bridge error, falling back...", e);
+    }
+  }
+
   // 1. Direct fetch
   try {
     const res = await fetch(`${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}`);
