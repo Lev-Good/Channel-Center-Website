@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>מרכז הערוצים - קורא ערוצים אונליין</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&family=Rubik:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="viewer.css">
+</head>
+<body>
+  <!-- Ambient background glow effect -->
+  <div class="glow-container">
+    <div class="glow-ball ball-1"></div>
+    <div class="glow-ball ball-2"></div>
+  </div>
+
+  <div class="viewer-layout">
+    <!-- Sidebar -->
+    <aside class="viewer-sidebar glass-card">
+      <div class="sidebar-logo">
+        <a href="index.html" class="logo-link">
+          <img src="logo.png" alt="לוגו מרכז הערוצים" class="sidebar-logo-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3661/3661348.png'">
+          <h3>מרכז הערוצים</h3>
+        </a>
+      </div>
+      <div class="sidebar-channels-list" id="sidebar-channels">
+        <!-- Channels will be populated here -->
+        <div class="sidebar-loading">טוען ערוצים...</div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="viewer-main">
+      <!-- Upper Header -->
+      <header class="viewer-header glass-card">
+        <button class="menu-toggle-btn" id="menu-toggle">☰</button>
+        <div class="active-channel-info">
+          <span class="active-channel-icon" id="active-icon">📡</span>
+          <div class="active-channel-meta">
+            <h2 id="active-name">בחר ערוץ</h2>
+            <span id="active-subcount"></span>
+          </div>
+        </div>
+        <div class="header-actions">
+          <a href="index.html" class="btn btn-secondary btn-sm">דף הבית</a>
+        </div>
+      </header>
+
+      <!-- Category Tabs (For channels with categories) -->
+      <div class="viewer-tabs-bar" id="category-tabs" style="display: none;">
+        <!-- Tabs will be populated here -->
+      </div>
+
+      <!-- Messages Ticker for Pinned Messages -->
+      <div class="viewer-pinned-bar" id="pinned-bar" style="display: none;">
+        <span class="pinned-label">מוצמד:</span>
+        <div class="pinned-messages" id="pinned-messages">
+          <!-- Ticker text will go here -->
+        </div>
+      </div>
+
+      <!-- Messages Feed -->
+      <section class="viewer-feed" id="messages-feed">
+        <div class="feed-placeholder">
+          <div class="placeholder-icon">📡</div>
+          <h3>ברוכים הבאים למרכז הערוצים אונליין</h3>
+          <p>בחר אחד מהערוצים בסרגל הצד כדי להתחיל לקרוא את ההודעות והעדכונים האחרונים.</p>
+        </div>
+      </section>
+
+      <!-- Bottom Ticker Ad -->
+      <footer class="viewer-footer-ad glass-card" id="bottom-ad-bar">
+        <div class="ticker-text-wrapper" id="ticker-text">פרסם כאן את העסק או הערוץ שלך ותגיע למאות גולשים ממוקדים מדי יום! לפניות: mytovmail@gmail.com</div>
+      </footer>
+    </main>
+  </div>
+
+  <script src="viewer.js"></script>
+</body>
+</html>
