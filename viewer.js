@@ -120,6 +120,7 @@ let currentOffset = 0;
 let activeCategory = "";
 let isLoading = false;
 let hasMore = true;
+let autoUpdateInterval = null;
 
 const sidebarContainer = document.getElementById('sidebar-channels');
 const activeIcon = document.getElementById('active-icon');
@@ -171,24 +172,25 @@ async function selectHome() {
   // Update Header
   activeIcon.textContent = "🏠";
   activeIcon.style.background = "var(--accent)";
-  activeName.textContent = "דף הבית - סרטונים";
-  activeSubcount.textContent = "הסרטונים האחרונים מכל הערוצים החרדיים";
+  activeName.textContent = "דף הבית";
+  activeSubcount.textContent = "ההודעות האחרונות מכל הערוצים";
 
   // Clear feed and show loader
-  messagesFeed.innerHTML = '<div class="loading-spinner">טוען את הסרטונים האחרונים מכל הערוצים...</div>';
+  messagesFeed.innerHTML = '<div class="loading-spinner">טוען את ההודעות האחרונות...</div>';
   categoryTabs.style.display = 'none';
   pinnedBar.style.display = 'none';
 
-  // Load videos
-  await loadHomeVideos();
+  // Load messages
+  await loadHomeMessages();
+  startAutoUpdate();
 }
 
-async function loadHomeVideos() {
+async function loadHomeMessages() {
   isLoading = true;
   
   const fetchPromises = CHANNELS.map(async (ch) => {
     try {
-      const url = `${ch.url.replace(/\/$/, '')}/api/messages?limit=25&offset=0`;
+      const url = `${ch.url.replace(/\/$/, '')}/api/messages?limit=15&offset=0`;
       const data = await fetchJson(url);
       const rawMsgs = Array.isArray(data) ? data : (data?.messages || []);
       if (rawMsgs.length > 0) {
@@ -196,30 +198,33 @@ async function loadHomeVideos() {
         return parsed.map(msg => ({ ...msg, channelId: ch.id }));
       }
     } catch (e) {
-      console.warn(`Failed fetching videos for home from ${ch.name}:`, e.message);
+      console.warn(`Failed fetching messages for home from ${ch.name}:`, e.message);
     }
     return [];
   });
 
   const results = await Promise.all(fetchPromises);
-  const allVideoMsgs = results.flat().filter(msg => msg.videos && msg.videos.length > 0);
+  const allMsgs = results.flat();
 
   // Sort by time descending (newest first)
-  allVideoMsgs.sort((a, b) => new Date(b.time) - new Date(a.time));
+  allMsgs.sort((a, b) => new Date(b.time) - new Date(a.time));
 
   messagesFeed.innerHTML = '';
 
-  if (allVideoMsgs.length === 0) {
-    messagesFeed.innerHTML = '<div class="feed-placeholder"><h3>לא נמצאו סרטונים בערוצים כעת</h3></div>';
+  const slice = allMsgs.slice(0, 15);
+
+  if (slice.length === 0) {
+    messagesFeed.innerHTML = '<div class="feed-placeholder"><h3>לא נמצאו הודעות בערוצים כעת</h3></div>';
     isLoading = false;
     return;
   }
 
-  allVideoMsgs.forEach(msg => {
+  slice.forEach(msg => {
     const card = renderMessageCard(msg);
     messagesFeed.appendChild(card);
   });
 
+  setupScrollObserver();
   isLoading = false;
 }
 
@@ -310,7 +315,9 @@ async function selectChannel(channel) {
 
   // Load categories and messages
   loadCategories(channel);
-  loadMessages(true);
+  loadMessages(true).then(() => {
+    startAutoUpdate();
+  });
 }
 
 // Load Categories
@@ -577,6 +584,7 @@ function renderMessageCard(msg) {
   const card = document.createElement('div');
   card.className = 'msg-card';
   card.setAttribute('data-id', msg.id);
+  card.setAttribute('data-time', msg.time);
 
   // Author and Avatar
   const ch = activeChannel || CHANNELS.find(c => c.id === msg.channelId) || { name: 'מרכז הערוצים', icon: 'logo.png' };
@@ -702,4 +710,89 @@ function setupScrollObserver() {
   }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
 
   cards.forEach(card => observer.observe(card));
+}
+
+function startAutoUpdate() {
+  if (autoUpdateInterval) clearInterval(autoUpdateInterval);
+  
+  autoUpdateInterval = setInterval(async () => {
+    if (isLoading) return;
+    
+    // Get the timestamp of the newest message currently displayed
+    const firstCard = messagesFeed.querySelector('.msg-card');
+    if (!firstCard) return;
+    const newestTime = firstCard.getAttribute('data-time');
+    
+    if (activeChannel) {
+      // Polling a specific channel
+      try {
+        const url = `${activeChannel.url.replace(/\/$/, '')}/api/messages?limit=10&offset=0` +
+          (activeCategory ? `&category=${encodeURIComponent(activeCategory)}` : '');
+        const data = await fetchJson(url);
+        const rawMsgs = Array.isArray(data) ? data : (data.messages || []);
+        if (rawMsgs.length > 0) {
+          const processed = parseRawMessages(rawMsgs, activeChannel);
+          processed.sort((a, b) => new Date(a.time) - new Date(b.time)); // Oldest first to prepend in order
+          
+          let hasNew = false;
+          processed.forEach(msg => {
+            const alreadyExists = !!messagesFeed.querySelector(`.msg-card[data-id="${msg.id}"]`);
+            const isNewer = newestTime ? (new Date(msg.time) > new Date(newestTime)) : true;
+            
+            if (!alreadyExists && isNewer) {
+              const card = renderMessageCard(msg);
+              card.classList.add('new-message-animation');
+              messagesFeed.insertBefore(card, messagesFeed.firstChild);
+              hasNew = true;
+            }
+          });
+          
+          if (hasNew) {
+            setupScrollObserver();
+          }
+        }
+      } catch (e) {
+        console.warn("Auto update failed for channel:", e.message);
+      }
+    } else {
+      // Polling Home feed (all channels)
+      try {
+        const fetchPromises = CHANNELS.map(async (ch) => {
+          try {
+            const url = `${ch.url.replace(/\/$/, '')}/api/messages?limit=5&offset=0`;
+            const data = await fetchJson(url);
+            const rawMsgs = Array.isArray(data) ? data : (data?.messages || []);
+            if (rawMsgs.length > 0) {
+              const parsed = parseRawMessages(rawMsgs, ch);
+              return parsed.map(msg => ({ ...msg, channelId: ch.id }));
+            }
+          } catch {}
+          return [];
+        });
+        
+        const results = await Promise.all(fetchPromises);
+        const allMsgs = results.flat();
+        allMsgs.sort((a, b) => new Date(a.time) - new Date(b.time)); // Oldest first to prepend in order
+        
+        let hasNew = false;
+        allMsgs.forEach(msg => {
+          const alreadyExists = !!messagesFeed.querySelector(`.msg-card[data-id="${msg.id}"]`);
+          const isNewer = newestTime ? (new Date(msg.time) > new Date(newestTime)) : true;
+          
+          if (!alreadyExists && isNewer) {
+            const card = renderMessageCard(msg);
+            card.classList.add('new-message-animation');
+            messagesFeed.insertBefore(card, messagesFeed.firstChild);
+            hasNew = true;
+          }
+        });
+        
+        if (hasNew) {
+          setupScrollObserver();
+        }
+      } catch (e) {
+        console.warn("Auto update failed for home feed:", e.message);
+      }
+    }
+  }, 15000); // Check for updates every 15 seconds
 }

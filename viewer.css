@@ -509,3 +509,41 @@ body {
     display: block;
   }
 }
+
+/* Scrollbar to match extension styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  display: block;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-glass);
+  border-radius: 6px;
+  border: 2px solid var(--bg-secondary);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* Auto Update highlight animation for new messages */
+@keyframes new-message-highlight {
+  0% {
+    background-color: rgba(59, 130, 246, 0.18);
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    background-color: var(--bg-glass);
+  }
+}
+
+.msg-card.new-message-animation {
+  animation: new-message-highlight 4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
